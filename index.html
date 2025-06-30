@@ -110,37 +110,37 @@
         border-collapse: collapse;
         margin: 20px 0;
         background: white;
-        font-size: 12px;
-        overflow-x: auto;
-        display: block;
-        white-space: nowrap;
-    }
-    
-    .summary-table thead,
-    .summary-table tbody,
-    .summary-table tr {
-        display: table;
-        width: 100%;
-        table-layout: fixed;
+        font-size: 11px;
     }
     
     .summary-table th,
     .summary-table td {
         border: 1px solid #ddd;
-        padding: 8px;
+        padding: 6px 4px;
         text-align: left;
         word-wrap: break-word;
+        vertical-align: top;
+        line-height: 1.3;
+    }
+    
+    .summary-table th {
+        background: #3498db;
+        color: white;
+        font-weight: bold;
+        font-size: 10px;
+        padding: 8px 4px;
     }
     
     @media (min-width: 768px) {
         .summary-table {
             font-size: inherit;
-            display: table;
-            white-space: normal;
         }
         .summary-table th,
         .summary-table td {
             padding: 12px;
+        }
+        .summary-table th {
+            font-size: inherit;
         }
     }
     
@@ -355,11 +355,11 @@
     <table class="summary-table">
         <thead>
             <tr>
-                <th>Voertuigtype</th>
-                <th>Percentage</th>
-                <th>Aantal/etmaal</th>
-                <th>CO₂ factor (g/km)</th>
-                <th>Geluid (dB(A))</th>
+                <th style="width: 20%;">Voertuigtype</th>
+                <th style="width: 15%;">Percentage</th>
+                <th style="width: 20%;">Aantal/<br>etmaal</th>
+                <th style="width: 20%;">CO₂ factor<br><small>(g/km)</small></th>
+                <th style="width: 15%;">Geluid<br><small>(dB(A))</small></th>
             </tr>
         </thead>
         <tbody id="voertuigTabel">
@@ -385,11 +385,11 @@
     <table class="summary-table">
         <thead>
             <tr>
-                <th>Jaar</th>
-                <th>CO₂ Emissie (kg/dag/km)</th>
-                <th>Reductie t.o.v. 2025</th>
-                <th>Geluidsniveau (dB(A))</th>
-                <th>Reductie t.o.v. 2025</th>
+                <th style="width: 12%;">Jaar</th>
+                <th style="width: 22%;">CO₂ Emissie<br><small>(kg/dag/km)</small></th>
+                <th style="width: 16%;">Reductie<br><small>t.o.v. 2025</small></th>
+                <th style="width: 22%;">Geluidsniveau<br><small>(dB(A))</small></th>
+                <th style="width: 16%;">Reductie<br><small>t.o.v. 2025</small></th>
             </tr>
         </thead>
         <tbody id="projectieTabel">
