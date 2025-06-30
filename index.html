@@ -483,23 +483,44 @@
 
     // Bereken geluid
     function berekenGeluid(jaar) {
-        let totaalGeluid = 0;
-        const afstand = 150;
-        const schermDemping = -10;
-        
-        Object.keys(voertuigSamenstelling).forEach(type => {
-            const aantalVoertuigen = huidigeIntensiteit * voertuigSamenstelling[type];
-            const basisGeluid = geluidsniveaus[jaar][type];
+        try {
+            let totaalGeluid = 0;
+            const afstand = 150;
+            const schermDemping = -10;
             
-            const afstandsCorr = -20 * Math.log10(afstand / 7.5);
-            const gecorrigeerdNiveau = basisGeluid + afstandsCorr + schermDemping;
-            const voertuigenPerUur = aantalVoertuigen / 24;
-            const verkeersGeluid = gecorrigeerdNiveau + 10 * Math.log10(voertuigenPerUur);
+            Object.keys(voertuigSamenstelling).forEach(type => {
+                const aantalVoertuigen = huidigeIntensiteit * voertuigSamenstelling[type];
+                const basisGeluid = geluidsniveaus[jaar][type];
+                
+                // Afstandsdemping: -20*log10(afstand/7.5)
+                const afstandsCorr = -20 * Math.log10(afstand / 7.5);
+                
+                // Gecorrigeerd geluidsniveau per voertuig
+                const gecorrigeerdNiveau = basisGeluid + afstandsCorr + schermDemping;
+                
+                // Verkeersstroom correctie: +10*log10(aantal voertuigen per uur)
+                const voertuigenPerUur = aantalVoertuigen / 24;
+                const verkeersGeluid = gecorrigeerdNiveau + 10 * Math.log10(voertuigenPerUur);
+                
+                // Energetische sommatie (alleen als het resultaat geldig is)
+                if (!isNaN(verkeersGeluid) && isFinite(verkeersGeluid)) {
+                    totaalGeluid += Math.pow(10, verkeersGeluid / 10);
+                }
+            });
             
-            totaalGeluid += Math.pow(10, verkeersGeluid / 10);
-        });
-        
-        return 10 * Math.log10(totaalGeluid);
+            const resultaat = 10 * Math.log10(totaalGeluid);
+            
+            // Controleer of resultaat geldig is
+            if (isNaN(resultaat) || !isFinite(resultaat)) {
+                console.error(`Ongeldige geluidsberekening voor jaar ${jaar}`);
+                return 48; // fallback waarde
+            }
+            
+            return resultaat;
+        } catch (error) {
+            console.error(`Fout in geluidsberekening voor jaar ${jaar}:`, error);
+            return 48; // fallback waarde
+        }
     }
 
     // Vul tabellen
@@ -614,7 +635,14 @@
     function createGeluidChart() {
         const ctx = document.getElementById('geluidChart').getContext('2d');
         const jaren = [2025, 2026, 2027, 2028, 2029, 2030];
-        const data = jaren.map(jaar => berekenGeluid(jaar).toFixed(1));
+        
+        // Debug: log de berekende waarden
+        console.log('Geluid data voor chart:');
+        const data = jaren.map(jaar => {
+            const geluidWaarde = berekenGeluid(jaar);
+            console.log(`${jaar}: ${geluidWaarde}`);
+            return parseFloat(geluidWaarde.toFixed(1));
+        });
         
         // Responsive height based on screen size
         const isMobile = window.innerWidth < 768;
@@ -641,8 +669,8 @@
                 aspectRatio: isMobile ? 2.5 : 2,
                 scales: {
                     y: {
-                        min: 46,
-                        max: 49,
+                        min: Math.min(...data) - 0.5,
+                        max: Math.max(...data) + 0.5,
                         title: {
                             display: true,
                             text: 'dB(A)',
@@ -653,7 +681,8 @@
                         ticks: {
                             font: {
                                 size: isMobile ? 9 : 11
-                            }
+                            },
+                            stepSize: 0.5
                         }
                     },
                     x: {
