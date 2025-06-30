@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+function createGeluidChart() {<!DOCTYPE html>
 
 <html lang="nl">
 <head>
@@ -356,10 +356,11 @@
         <thead>
             <tr>
                 <th style="width: 20%;">Voertuigtype</th>
-                <th style="width: 15%;">Percentage</th>
-                <th style="width: 20%;">Aantal/<br>etmaal</th>
-                <th style="width: 20%;">CO₂ factor<br><small>(g/km)</small></th>
-                <th style="width: 15%;">Geluid<br><small>(dB(A))</small></th>
+                <th style="width: 12%;">Percentage</th>
+                <th style="width: 18%;">Aantal/<br>etmaal</th>
+                <th style="width: 15%;">CO₂<br><small>(g/km)</small></th>
+                <th style="width: 15%;">PM10<br><small>(mg/km)</small></th>
+                <th style="width: 12%;">Geluid<br><small>(dB(A))</small></th>
             </tr>
         </thead>
         <tbody id="voertuigTabel">
@@ -385,11 +386,13 @@
     <table class="summary-table">
         <thead>
             <tr>
-                <th style="width: 12%;">Jaar</th>
-                <th style="width: 22%;">CO₂ Emissie<br><small>(kg/dag/km)</small></th>
-                <th style="width: 16%;">Reductie<br><small>t.o.v. 2025</small></th>
-                <th style="width: 22%;">Geluidsniveau<br><small>(dB(A))</small></th>
-                <th style="width: 16%;">Reductie<br><small>t.o.v. 2025</small></th>
+                <th style="width: 8%;">Jaar</th>
+                <th style="width: 18%;">CO₂ Emissie<br><small>(kg/dag/km)</small></th>
+                <th style="width: 12%;">CO₂ Red.<br><small>(%)</small></th>
+                <th style="width: 18%;">PM10 Fijnstof<br><small>(g/dag/km)</small></th>
+                <th style="width: 12%;">PM10 Red.<br><small>(%)</small></th>
+                <th style="width: 16%;">Geluidsniveau<br><small>(dB(A))</small></th>
+                <th style="width: 12%;">Geluid Red.<br><small>(dB)</small></th>
             </tr>
         </thead>
         <tbody id="projectieTabel">
@@ -410,8 +413,10 @@
         <h3>Emissieberekening</h3>
         <ul>
             <li><strong>CO₂ factoren 2025:</strong> Personenautos 120 g/km, bestelautos 180 g/km, vrachtwagens 800 g/km</li>
+            <li><strong>PM10 factoren 2025:</strong> Personenautos 35 mg/km, bestelautos 55 mg/km, vrachtwagens 180 mg/km</li>
             <li><strong>Elektrificatie scenario:</strong> Geleidelijke overgang naar elektrisch volgens EU-doelstellingen</li>
             <li><strong>2030 doelstelling:</strong> 100% nieuwe personenautos elektrisch, 50% bestel, 20% vracht</li>
+            <li><strong>Fijnstof reductie:</strong> Vooral door betere motortechnologie en filters, minder door elektrificatie</li>
         </ul>
 
         <h3>Geluidsberekening</h3>
@@ -457,6 +462,44 @@
         2030: { 'Personenautos': 35, 'Bestelautos': 95, 'Vrachtwagens': 700, 'Motorfietsen': 70 }
     };
 
+    // Fijnstof factoren per voertuigtype (mg/km) - PM10 en PM2.5
+    const fijnstofFactoren = {
+        2025: { 
+            'Personenautos': { pm10: 35, pm25: 25 }, 
+            'Bestelautos': { pm10: 55, pm25: 40 }, 
+            'Vrachtwagens': { pm10: 180, pm25: 130 }, 
+            'Motorfietsen': { pm10: 30, pm25: 22 } 
+        },
+        2026: { 
+            'Personenautos': { pm10: 32, pm25: 23 }, 
+            'Bestelautos': { pm10: 52, pm25: 38 }, 
+            'Vrachtwagens': { pm10: 175, pm25: 127 }, 
+            'Motorfietsen': { pm10: 28, pm25: 21 } 
+        },
+        2027: { 
+            'Personenautos': { pm10: 28, pm25: 20 }, 
+            'Bestelautos': { pm10: 48, pm25: 35 }, 
+            'Vrachtwagens': { pm10: 170, pm25: 124 }, 
+            'Motorfietsen': { pm10: 26, pm25: 19 } 
+        },
+        2028: { 
+            'Personenautos': { pm10: 24, pm25: 17 }, 
+            'Bestelautos': { pm10: 43, pm25: 31 }, 
+            'Vrachtwagens': { pm10: 165, pm25: 121 }, 
+            'Motorfietsen': { pm10: 24, pm25: 18 } 
+        },
+        2029: { 
+            'Personenautos': { pm10: 20, pm25: 14 }, 
+            'Bestelautos': { pm10: 38, pm25: 28 }, 
+            'Vrachtwagens': { pm10: 160, pm25: 118 }, 
+            'Motorfietsen': { pm10: 22, pm25: 16 } 
+        },
+        2030: { 
+            'Personenautos': { pm10: 16, pm25: 11 }, 
+            'Bestelautos': { pm10: 33, pm25: 24 }, 
+            'Vrachtwagens': { pm10: 155, pm25: 115 }, 
+            'Motorfietsen': { pm10: 20, pm25: 15 } 
+        }
     const geluidsniveaus = {
         2025: { 'Personenautos': 72, 'Bestelautos': 74, 'Vrachtwagens': 78, 'Motorfietsen': 76 },
         2026: { 'Personenautos': 71.5, 'Bestelautos': 73.5, 'Vrachtwagens': 77.5, 'Motorfietsen': 75.5 },
@@ -466,6 +509,30 @@
         2030: { 'Personenautos': 69.5, 'Bestelautos': 71.5, 'Vrachtwagens': 75.5, 'Motorfietsen': 73.5 }
     };
 
+    // Bereken fijnstof emissies
+    function berekenFijnstof(jaar) {
+        let totaalPM10 = 0;
+        let totaalPM25 = 0;
+        const fijnstofPerType = { pm10: {}, pm25: {} };
+        
+        Object.keys(voertuigSamenstelling).forEach(type => {
+            const aantalVoertuigen = huidigeIntensiteit * voertuigSamenstelling[type];
+            
+            // PM10 en PM2.5 in gram per dag per km
+            const pm10 = (fijnstofFactoren[jaar][type].pm10 * aantalVoertuigen) / 1000; // mg naar gram
+            const pm25 = (fijnstofFactoren[jaar][type].pm25 * aantalVoertuigen) / 1000; // mg naar gram
+            
+            fijnstofPerType.pm10[type] = pm10;
+            fijnstofPerType.pm25[type] = pm25;
+            totaalPM10 += pm10;
+            totaalPM25 += pm25;
+        });
+        
+        return { 
+            pm10: { totaal: totaalPM10, perType: fijnstofPerType.pm10 },
+            pm25: { totaal: totaalPM25, perType: fijnstofPerType.pm25 }
+        };
+    }
     // Bereken emissies
     function berekenEmissies(jaar) {
         let totaalEmissie = 0;
@@ -527,11 +594,13 @@
     function vulVoertuigTabel() {
         const tbody = document.getElementById('voertuigTabel');
         const emissies2025 = berekenEmissies(2025);
+        const fijnstof2025 = berekenFijnstof(2025);
         
         tbody.innerHTML = Object.keys(voertuigSamenstelling).map(type => {
             const percentage = (voertuigSamenstelling[type] * 100).toFixed(0);
             const aantal = Math.round(huidigeIntensiteit * voertuigSamenstelling[type]).toLocaleString();
             const emisieFactor = emissieFactoren[2025][type];
+            const fijnstofFactor = fijnstofFactoren[2025][type].pm10;
             const geluidNiveau = geluidsniveaus[2025][type];
             
             return `
@@ -540,6 +609,7 @@
                     <td>${percentage}%</td>
                     <td>${aantal}</td>
                     <td>${emisieFactor}</td>
+                    <td>${fijnstofFactor}</td>
                     <td>${geluidNiveau}</td>
                 </tr>
             `;
@@ -550,12 +620,15 @@
         const tbody = document.getElementById('projectieTabel');
         const jaren = [2025, 2026, 2027, 2028, 2029, 2030];
         const emissie2025 = berekenEmissies(2025).totaal;
+        const fijnstof2025 = berekenFijnstof(2025).pm10.totaal;
         const geluid2025 = berekenGeluid(2025);
         
         tbody.innerHTML = jaren.map(jaar => {
             const emissie = berekenEmissies(jaar).totaal;
+            const fijnstof = berekenFijnstof(jaar).pm10.totaal;
             const geluid = berekenGeluid(jaar);
             const emissieReductie = ((emissie2025 - emissie) / emissie2025 * 100).toFixed(1);
+            const fijnstofReductie = ((fijnstof2025 - fijnstof) / fijnstof2025 * 100).toFixed(1);
             const geluidReductie = (geluid2025 - geluid).toFixed(1);
             
             return `
@@ -563,8 +636,10 @@
                     <td>${jaar}</td>
                     <td>${Math.round(emissie).toLocaleString()}</td>
                     <td>${jaar === 2025 ? '-' : '-' + emissieReductie + '%'}</td>
+                    <td>${Math.round(fijnstof).toLocaleString()}</td>
+                    <td>${jaar === 2025 ? '-' : '-' + fijnstofReductie + '%'}</td>
                     <td>${geluid.toFixed(1)}</td>
-                    <td>${jaar === 2025 ? '-' : '-' + geluidReductie + ' dB'}</td>
+                    <td>${jaar === 2025 ? '-' : '-' + geluidReductie}</td>
                 </tr>
             `;
         }).join('');
@@ -632,7 +707,85 @@
         });
     }
 
-    function createGeluidChart() {
+    // Fijnstof chart
+    function createFijnstofChart() {
+        const ctx = document.getElementById('fijnstofChart').getContext('2d');
+        const jaren = [2025, 2026, 2027, 2028, 2029, 2030];
+        const dataPM10 = jaren.map(jaar => Math.round(berekenFijnstof(jaar).pm10.totaal));
+        const dataPM25 = jaren.map(jaar => Math.round(berekenFijnstof(jaar).pm25.totaal));
+        
+        const isMobile = window.innerWidth < 768;
+        ctx.canvas.height = isMobile ? 150 : 300;
+        
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: jaren,
+                datasets: [
+                    {
+                        label: 'PM10 (gram/dag/km)',
+                        data: dataPM10,
+                        borderColor: '#e74c3c',
+                        backgroundColor: 'rgba(231, 76, 60, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8
+                    },
+                    {
+                        label: 'PM2.5 (gram/dag/km)',
+                        data: dataPM25,
+                        borderColor: '#9b59b6',
+                        backgroundColor: 'rgba(155, 89, 182, 0.1)',
+                        fill: false,
+                        tension: 0.3,
+                        pointRadius: isMobile ? 4 : 6,
+                        pointHoverRadius: isMobile ? 6 : 8
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                aspectRatio: isMobile ? 2.5 : 2,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        title: {
+                            display: true,
+                            text: 'Fijnstof (gram/dag/km)',
+                            font: {
+                                size: isMobile ? 10 : 12
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: isMobile ? 9 : 11
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: isMobile ? 9 : 11
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: isMobile ? 10 : 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
         const ctx = document.getElementById('geluidChart').getContext('2d');
         const jaren = [2025, 2026, 2027, 2028, 2029, 2030];
         
@@ -713,6 +866,7 @@
         
         // Update hoofdcijfers
         const emissies2025 = berekenEmissies(2025);
+        const fijnstof2025 = berekenFijnstof(2025);
         const geluid2025 = berekenGeluid(2025);
         document.getElementById('emissie2025').textContent = Math.round(emissies2025.totaal).toLocaleString();
         document.getElementById('geluid2025').textContent = geluid2025.toFixed(1);
@@ -720,6 +874,7 @@
         // Maak charts met delay voor proper rendering
         setTimeout(() => {
             createEmissieChart();
+            createFijnstofChart();
             createGeluidChart();
         }, 100);
     });
@@ -731,8 +886,10 @@
         resizeTimeout = setTimeout(() => {
             // Destroy and recreate charts on significant resize
             Chart.getChart('emissieChart')?.destroy();
+            Chart.getChart('fijnstofChart')?.destroy();
             Chart.getChart('geluidChart')?.destroy();
             createEmissieChart();
+            createFijnstofChart();
             createGeluidChart();
         }, 300);
     });
