@@ -172,15 +172,14 @@
     
     .chart-canvas {
         max-width: 100%;
-        height: 200px;
+        height: 150px !important;
+        max-height: 150px;
     }
     
     @media (min-width: 768px) {
-        .chart-title {
-            font-size: 14pt;
-        }
         .chart-canvas {
-            height: 300px;
+            height: 300px !important;
+            max-height: 300px;
         }
     }
     
@@ -556,6 +555,10 @@
         const jaren = [2025, 2026, 2027, 2028, 2029, 2030];
         const data = jaren.map(jaar => Math.round(berekenEmissies(jaar).totaal));
         
+        // Responsive height based on screen size
+        const isMobile = window.innerWidth < 768;
+        ctx.canvas.height = isMobile ? 150 : 300;
+        
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -567,19 +570,35 @@
                     backgroundColor: 'rgba(231, 76, 60, 0.1)',
                     fill: true,
                     tension: 0.3,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
+                    pointRadius: isMobile ? 4 : 6,
+                    pointHoverRadius: isMobile ? 6 : 8
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                aspectRatio: isMobile ? 2.5 : 2,
                 scales: {
                     y: {
                         beginAtZero: false,
                         title: {
                             display: true,
-                            text: 'kg CO₂/dag per km'
+                            text: 'kg CO₂/dag per km',
+                            font: {
+                                size: isMobile ? 10 : 12
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: isMobile ? 9 : 11
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: isMobile ? 9 : 11
+                            }
                         }
                     }
                 },
@@ -597,6 +616,10 @@
         const jaren = [2025, 2026, 2027, 2028, 2029, 2030];
         const data = jaren.map(jaar => berekenGeluid(jaar).toFixed(1));
         
+        // Responsive height based on screen size
+        const isMobile = window.innerWidth < 768;
+        ctx.canvas.height = isMobile ? 150 : 300;
+        
         new Chart(ctx, {
             type: 'line',
             data: {
@@ -608,20 +631,36 @@
                     backgroundColor: 'rgba(52, 152, 219, 0.1)',
                     fill: true,
                     tension: 0.3,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
+                    pointRadius: isMobile ? 4 : 6,
+                    pointHoverRadius: isMobile ? 6 : 8
                 }]
             },
             options: {
                 responsive: true,
                 maintainAspectRatio: false,
+                aspectRatio: isMobile ? 2.5 : 2,
                 scales: {
                     y: {
                         min: 46,
                         max: 49,
                         title: {
                             display: true,
-                            text: 'dB(A)'
+                            text: 'dB(A)',
+                            font: {
+                                size: isMobile ? 10 : 12
+                            }
+                        },
+                        ticks: {
+                            font: {
+                                size: isMobile ? 9 : 11
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: isMobile ? 9 : 11
+                            }
                         }
                     }
                 },
@@ -649,9 +688,24 @@
         document.getElementById('emissie2025').textContent = Math.round(emissies2025.totaal).toLocaleString();
         document.getElementById('geluid2025').textContent = geluid2025.toFixed(1);
         
-        // Maak charts
-        createEmissieChart();
-        createGeluidChart();
+        // Maak charts met delay voor proper rendering
+        setTimeout(() => {
+            createEmissieChart();
+            createGeluidChart();
+        }, 100);
+    });
+
+    // Handle window resize for responsive charts
+    let resizeTimeout;
+    window.addEventListener('resize', function() {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            // Destroy and recreate charts on significant resize
+            Chart.getChart('emissieChart')?.destroy();
+            Chart.getChart('geluidChart')?.destroy();
+            createEmissieChart();
+            createGeluidChart();
+        }, 300);
     });
 </script>
 ```
